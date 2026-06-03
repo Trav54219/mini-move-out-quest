@@ -1,0 +1,515 @@
+/* Matches 1-sol-5k-sol-tracker.vercel.app visual system */
+:root {
+  --bg: #f7f8f9;
+  --bg2: #ffffff;
+  --bg3: #f0f2f4;
+  --border: rgba(0, 0, 0, 0.07);
+  --border2: rgba(0, 0, 0, 0.12);
+  --green: #0a7c52;
+  --green-mid: #1d9e75;
+  --text: #111315;
+  --muted: #7a8290;
+  --muted2: #5a6270;
+  --done-bg: rgba(10, 124, 82, 0.03);
+}
+
+.tracker-app {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-plex-sans), "IBM Plex Sans", sans-serif;
+  min-height: 100vh;
+  padding: 32px 24px 80px;
+}
+
+.tracker-app .mono {
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+}
+
+.tracker-app .header {
+  border-bottom: 0.5px solid var(--border2);
+  margin: 0 auto 24px;
+  max-width: 980px;
+  padding-bottom: 24px;
+}
+
+.tracker-app .header-main {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.tracker-app .auth-card {
+  background: var(--bg2);
+  border: 0.5px solid var(--border2);
+  border-radius: 10px;
+  color: var(--muted2);
+  flex: 0 0 255px;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 12px 14px;
+}
+
+.tracker-app .auth-title {
+  color: var(--text);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tracker-app .auth-btn {
+  background: var(--green);
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  margin-top: 10px;
+  padding: 6px 12px;
+  text-decoration: none;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.tracker-app .auth-btn.secondary {
+  background: var(--bg3);
+  color: var(--muted2);
+  margin-left: 8px;
+}
+
+.tracker-app .auth-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.tracker-app .progress-panel {
+  background: var(--bg2);
+  border: 0.5px solid var(--border2);
+  border-radius: 12px;
+  margin: 0 auto 24px;
+  max-width: 980px;
+  padding: 18px 20px;
+}
+
+.tracker-app .progress-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 140px 1fr auto;
+  margin-top: 12px;
+}
+
+.tracker-app .progress-field label {
+  color: var(--muted);
+  display: grid;
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 9px;
+  gap: 6px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tracker-app .progress-field input,
+.tracker-app .progress-field textarea {
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 7px;
+  color: var(--text);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 13px;
+  padding: 8px 10px;
+  width: 100%;
+}
+
+.tracker-app .progress-field textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.tracker-app .milestone-cb {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  margin-right: 12px;
+}
+
+.tracker-app .milestone-cb input {
+  accent-color: var(--green);
+}
+
+.tracker-app tbody tr.row-done {
+  background: var(--done-bg);
+  opacity: 0.72;
+}
+
+.tracker-app .save-status {
+  color: var(--muted);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 10px;
+  margin-top: 8px;
+}
+
+.tracker-app .save-status.ok {
+  color: var(--green);
+}
+
+.tracker-app .logo-line {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.tracker-app .dot {
+  animation: tracker-pulse 2s ease-in-out infinite;
+  background: var(--green);
+  border-radius: 50%;
+  height: 7px;
+  width: 7px;
+}
+
+@keyframes tracker-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.tracker-app .logo-text {
+  color: var(--green);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tracker-app h1 {
+  color: var(--text);
+  font-size: 26px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.tracker-app h1 span {
+  color: var(--green);
+  font-weight: 500;
+}
+
+.tracker-app .subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.tracker-app .summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.tracker-app .stat {
+  background: var(--bg2);
+  border: 0.5px solid var(--border2);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 16px;
+}
+
+.tracker-app .stat-label {
+  color: var(--muted);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tracker-app .stat-value {
+  color: var(--green);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.tracker-app .stat-hint {
+  color: var(--muted);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 10px;
+}
+
+.tracker-app .stat-value.muted-value {
+  color: var(--text);
+}
+
+.tracker-app .stat-value.warn-value {
+  color: #a05f00;
+}
+
+.tracker-app .tracker {
+  background: var(--bg2);
+  border: 0.5px solid var(--border2);
+  border-radius: 12px;
+  margin: 0 auto 24px;
+  max-width: 980px;
+  padding: 18px 20px;
+}
+
+.tracker-app .tracker-top {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.tracker-app .tracker-title {
+  color: var(--muted);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.tracker-app .tracker-count {
+  color: var(--green);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1.1;
+  margin-top: 4px;
+}
+
+.tracker-app .tracker-sub {
+  color: var(--muted);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 11px;
+  margin-top: 6px;
+}
+
+.tracker-app .live-badge {
+  align-items: center;
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 6px;
+  color: var(--muted);
+  display: inline-flex;
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 10px;
+  gap: 8px;
+  letter-spacing: 0.06em;
+  padding: 7px 12px;
+  text-transform: uppercase;
+}
+
+.tracker-app .live-badge strong {
+  color: var(--green);
+}
+
+.tracker-app .live-badge.error strong {
+  color: #a05f00;
+}
+
+.tracker-app .main-track {
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 5px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.tracker-app .main-fill {
+  background: var(--green);
+  border-radius: inherit;
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.tracker-app .pace-card {
+  align-items: center;
+  background: rgba(10, 124, 82, 0.07);
+  border: 0.5px solid rgba(10, 124, 82, 0.28);
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding: 12px 14px;
+}
+
+.tracker-app .pace-card .completion-label {
+  color: var(--muted);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.tracker-app .pace-card strong {
+  color: var(--green);
+  display: block;
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.1;
+  margin-top: 4px;
+}
+
+.tracker-app .pace-card p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 520px;
+}
+
+.tracker-app .table-wrap {
+  background: var(--bg2);
+  border: 0.5px solid var(--border2);
+  border-radius: 12px;
+  margin: 0 auto;
+  max-width: 980px;
+  overflow: hidden;
+}
+
+.tracker-app table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.tracker-app thead th {
+  background: var(--bg3);
+  border-bottom: 0.5px solid var(--border2);
+  color: var(--muted);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  padding: 11px 14px;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tracker-app tbody tr {
+  border-bottom: 0.5px solid var(--border);
+  transition: background 0.15s;
+}
+
+.tracker-app tbody tr:last-child {
+  border-bottom: none;
+}
+
+.tracker-app tbody tr:hover {
+  background: #f5f7f8;
+}
+
+.tracker-app tbody td {
+  font-size: 13px;
+  padding: 10px 14px;
+}
+
+.tracker-app .phase-divider td {
+  background: var(--bg3);
+  border-bottom: 0.5px solid var(--border2);
+  border-top: 0.5px solid var(--border2);
+  color: var(--muted);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  padding: 8px 14px;
+  text-transform: uppercase;
+}
+
+.tracker-app .sol-amount {
+  color: var(--text);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tracker-app .usd-equivalent {
+  color: var(--muted);
+  display: block;
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 10px;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+.tracker-app .item-note {
+  color: var(--muted);
+  display: block;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.tracker-app .sync-debug {
+  color: var(--muted);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 10px;
+  margin: 18px auto 0;
+  max-width: 980px;
+  text-align: center;
+}
+
+.tracker-app .sync-debug a {
+  color: var(--green-mid);
+  text-decoration: none;
+}
+
+.tracker-app .sync-debug a:hover {
+  color: var(--green);
+  text-decoration: underline;
+}
+
+@media (max-width: 760px) {
+  .tracker-app {
+    padding: 20px 12px 48px;
+  }
+
+  .tracker-app .header-main {
+    flex-direction: column;
+  }
+
+  .tracker-app .auth-card {
+    flex: auto;
+    width: 100%;
+  }
+
+  .tracker-app .progress-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tracker-app h1 {
+    font-size: 20px;
+  }
+
+  .tracker-app .tracker-count {
+    font-size: 28px;
+  }
+
+  .tracker-app .summary-row {
+    flex-direction: column;
+  }
+
+  .tracker-app .stat {
+    width: 100%;
+  }
+}
