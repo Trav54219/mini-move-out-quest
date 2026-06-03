@@ -6,8 +6,10 @@ export const progressValidator = v.object({
   solEarned: v.number(),
   notes: v.string(),
   completedMilestones: v.array(v.string()),
+  activeTaskId: v.string(),
 });
 
+import { DEFAULT_ACTIVE_TASK_ID } from "../lib/financial-targets";
 import {
   emptyMoveOutProgress,
   type MoveOutProgress,
@@ -57,6 +59,7 @@ export const get = query({
       solEarned: doc.solEarned,
       notes: doc.notes,
       completedMilestones: doc.completedMilestones,
+      activeTaskId: doc.activeTaskId ?? DEFAULT_ACTIVE_TASK_ID,
     };
   },
 });
@@ -74,6 +77,7 @@ export const save = mutation({
       solEarned: Math.max(0, args.progress.solEarned),
       notes: args.progress.notes.trim(),
       completedMilestones: args.progress.completedMilestones,
+      activeTaskId: args.progress.activeTaskId,
       updatedAt: Date.now(),
     };
 

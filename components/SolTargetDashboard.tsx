@@ -12,12 +12,18 @@ import {
 import { useAuth } from "@workos-inc/authkit-nextjs/components";
 import { api } from "@/convex/_generated/api";
 import {
+  DEFAULT_ACTIVE_TASK_ID,
   FINANCIAL_GROUPS,
   GRAND_TOTAL_USD,
+  findLineItem,
   formatSol,
   formatUsd,
   usdToSol,
 } from "@/lib/financial-targets";
+import {
+  loadLocalProgress,
+  saveLocalProgress,
+} from "@/lib/local-progress-storage";
 import {
   emptyMoveOutProgress,
   type MoveOutProgress,
@@ -93,6 +99,78 @@ function AuthCard() {
         </>
       )}
     </div>
+  );
+}
+
+function CurrentTaskPanel({
+  activeTaskId,
+  solEarned,
+  solPrice,
+  loading,
+  hasPrice,
+  completed,
+}: {
+  activeTaskId: string;
+  solEarned: number;
+  solPrice: number;
+  loading: boolean;
+  hasPrice: boolean;
+  completed: boolean;
+}) {
+  const item =
+    findLineItem(activeTaskId) ?? findLineItem(DEFAULT_ACTIVE_TASK_ID);
+  if (!item) return null;
+
+  const taskSol = usdToSol(item.usd, solPrice);
+  const remaining = completed ? 0 : Math.max(0, taskSol - solEarned);
+  const taskPct =
+    taskSol > 0 && !completed
+      ? Math.min(100, (solEarned / taskSol) * 100)
+      : completed
+        ? 100
+        : 0;
+
+  return (
+    <section className="current-task-panel" aria-labelledby="current-task-heading">
+      <div className="tracker-top">
+        <div>
+          <div className="tracker-title" id="current-task-heading">
+            Working on
+          </div>
+          <div className="current-task-name">{item.label}</div>
+          <div className="tracker-count current-task-sol">
+            {loading && !hasPrice
+              ? "—"
+              : completed
+                ? "Done"
+                : `${formatSol(remaining)} SOL left`}
+          </div>
+          <div className="tracker-sub">
+            {completed ? (
+              <>Marked complete · {formatUsd(item.usd)}</>
+            ) : (
+              <>
+                {loading && !hasPrice ? "—" : formatSol(taskSol)} SOL to finish
+                {" · "}
+                {formatUsd(item.usd)} fixed
+                {solEarned > 0 && hasPrice ? (
+                  <>
+                    {" · "}
+                    {formatSol(solEarned)} SOL banked (
+                    {taskPct.toFixed(0)}% of this task)
+                  </>
+                ) : null}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+      {!completed ? (
+        <div className="main-track current-task-track" aria-hidden>
+          <div className="main-fill" style={{ width: `${taskPct}%` }} />
+        </div>
+      ) : null}
+    </section>
   );
 }
 
@@ -177,29 +255,29 @@ function ProgressPanel({
         </p>
       </Unauthenticated>
 
-      <Authenticated>
-        {remoteLoading ? (
-          <p className="save-status">Loading saved progress…</p>
-        ) : (
-          <div className="progress-grid">
-            <div className="progress-field">
-              <label>
-                SOL earned
-                <input
-                  type="number"
-                  min={0}
-                  step="any"
-                  value={draft.solEarned === 0 ? "" : draft.solEarned}
-                  placeholder="0"
-                  onChange={(e) =>
-                    setDraft((p) => ({
-                      ...p,
-                      solEarned: Number(e.target.value) || 0,
-                    }))
-                  }
-                />
-              </label>
-            </div>
+      {remoteLoading ? (
+        <p className="save-status">Loading saved progress…</p>
+      ) : (
+        <div className="progress-grid">
+          <div className="progress-field">
+            <label>
+              SOL earned (current task)
+              <input
+                type="number"
+                min={0}
+                step="any"
+                value={draft.solEarned === 0 ? "" : draft.solEarned}
+                placeholder="0"
+                onChange={(e) =>
+                  setDraft((p) => ({
+                    ...p,
+                    solEarned: Number(e.target.value) || 0,
+                  }))
+                }
+              />
+            </label>
+          </div>
+          <Authenticated>
             <div className="progress-field">
               <label>
                 Notes
@@ -212,8 +290,10 @@ function ProgressPanel({
                 />
               </label>
             </div>
-          </div>
-        )}
+          </Authenticated>
+        </div>
+      )}
+      <Authenticated>
         <p
           className={`save-status ${saveState === "saved" ? "ok" : ""}`}
           aria-live="polite"
@@ -224,9 +304,12 @@ function ProgressPanel({
               ? "Saved to your account."
               : saveState === "error"
                 ? "Save failed — try again."
-                : "Check milestones in the table, then save."}
+                : "Use the dot column to pick your current task; checkboxes save automatically."}
         </p>
       </Authenticated>
+      <Unauthenticated>
+        <p className="save-status">SOL earned saves on this browser.</p>
+      </Unauthenticated>
     </section>
   );
 }
@@ -239,29 +322,68 @@ export function SolTargetDashboard() {
 
   const { isAuthenticated } = useConvexAuth();
   const remote = useQuery(api.progress.get, isAuthenticated ? {} : "skip");
+  const saveProgress = useMutation(api.progress.save);
   const [draft, setDraft] = useState<MoveOutProgress>(emptyMoveOutProgress());
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
-      setDraft(emptyMoveOutProgress());
-      setHydrated(false);
+      setDraft(loadLocalProgress());
+      setHydrated(true);
       return;
     }
     if (remote === undefined) return;
-    setDraft(remote);
+    const local = loadLocalProgress();
+    const merged =
+      remote.completedMilestones.length === 0 &&
+      local.completedMilestones.length > 0
+        ? { ...remote, completedMilestones: local.completedMilestones }
+        : remote;
+    setDraft(merged);
     setHydrated(true);
-  }, [isAuthenticated, remote]);
+    if (
+      merged.completedMilestones.length > remote.completedMilestones.length
+    ) {
+      void saveProgress({ progress: merged });
+    }
+  }, [isAuthenticated, remote, saveProgress]);
+
+  useEffect(() => {
+    if (!hydrated || isAuthenticated) return;
+    saveLocalProgress(draft);
+  }, [draft, hydrated, isAuthenticated]);
+
+  const persistProgress = useCallback(
+    (next: MoveOutProgress) => {
+      if (!isAuthenticated) {
+        saveLocalProgress(next);
+        return;
+      }
+      void saveProgress({ progress: next });
+    },
+    [isAuthenticated, saveProgress],
+  );
 
   const toggleMilestone = (id: string) => {
     setDraft((prev) => {
       const has = prev.completedMilestones.includes(id);
-      return {
+      const next = {
         ...prev,
         completedMilestones: has
           ? prev.completedMilestones.filter((m) => m !== id)
           : [...prev.completedMilestones, id],
       };
+      persistProgress(next);
+      return next;
+    });
+  };
+
+  const setActiveTask = (id: string) => {
+    setDraft((prev) => {
+      if (prev.activeTaskId === id) return prev;
+      const next = { ...prev, activeTaskId: id };
+      persistProgress(next);
+      return next;
     });
   };
 
@@ -269,6 +391,8 @@ export function SolTargetDashboard() {
     () => new Set(draft.completedMilestones),
     [draft.completedMilestones],
   );
+
+  const activeTaskCompleted = completedSet.has(draft.activeTaskId);
 
   const fetchPrice = useCallback(async () => {
     try {
@@ -375,6 +499,15 @@ export function SolTargetDashboard() {
         remoteLoading={isAuthenticated && !hydrated}
       />
 
+      <CurrentTaskPanel
+        activeTaskId={draft.activeTaskId}
+        solEarned={draft.solEarned}
+        solPrice={solPrice}
+        loading={loading}
+        hasPrice={!!price}
+        completed={activeTaskCompleted}
+      />
+
       <section className="tracker">
         <div className="tracker-top">
           <div>
@@ -426,7 +559,8 @@ export function SolTargetDashboard() {
         <table>
           <thead>
             <tr>
-              <th style={{ width: 36 }} />
+              <th style={{ width: 40 }} aria-label="Done" />
+              <th style={{ width: 44 }} aria-label="Working on" />
               <th>Target</th>
               <th>SOL needed</th>
               <th>USD (fixed)</th>
@@ -436,23 +570,43 @@ export function SolTargetDashboard() {
             {FINANCIAL_GROUPS.map((group) => (
               <Fragment key={group.id}>
                 <tr className="phase-divider">
-                  <td colSpan={4}>{group.label}</td>
+                  <td colSpan={5}>{group.label}</td>
                 </tr>
                 {group.items.map((item) => {
                   const sol = usdToSol(item.usd, solPrice);
                   const done = completedSet.has(item.id);
+                  const active = draft.activeTaskId === item.id;
+                  const rowClass = [
+                    done ? "row-done" : "",
+                    active ? "row-active" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ");
                   return (
-                    <tr key={item.id} className={done ? "row-done" : undefined}>
+                    <tr key={item.id} className={rowClass || undefined}>
                       <td>
-                        <Authenticated>
-                          <label className="milestone-cb">
-                            <input
-                              type="checkbox"
-                              checked={done}
-                              onChange={() => toggleMilestone(item.id)}
-                            />
-                          </label>
-                        </Authenticated>
+                        <label className="milestone-cb" title="Mark done">
+                          <input
+                            type="checkbox"
+                            checked={done}
+                            aria-label={`${item.label} done`}
+                            onChange={() => toggleMilestone(item.id)}
+                          />
+                        </label>
+                      </td>
+                      <td>
+                        <label
+                          className="focus-task"
+                          title="Set as task you're working on"
+                        >
+                          <input
+                            type="radio"
+                            name="active-task"
+                            checked={active}
+                            aria-label={`Working on ${item.label}`}
+                            onChange={() => setActiveTask(item.id)}
+                          />
+                        </label>
                       </td>
                       <td>
                         {item.label}
@@ -475,6 +629,7 @@ export function SolTargetDashboard() {
                 })}
                 {group.id === "debts" ? (
                   <tr key="debts-subtotal">
+                    <td />
                     <td />
                     <td>
                       <strong>Subtotal</strong>
@@ -500,6 +655,15 @@ export function SolTargetDashboard() {
       </div>
 
       <p className="sync-debug">
+        {!isAuthenticated ? (
+          <>
+            Task focus and checkboxes save on this browser.{" "}
+            <Link href="/sign-in" style={{ color: "var(--green)" }}>
+              Sign in
+            </Link>{" "}
+            to sync across devices. ·{" "}
+          </>
+        ) : null}
         SOL/USD via{" "}
         <a
           href="https://dev.jup.ag/docs/price"

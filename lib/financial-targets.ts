@@ -15,12 +15,20 @@ export type FinancialGroup = {
   items: FinancialLineItem[];
 };
 
+/** First task in the plan — shown at top of the list and default focus. */
+export const DEFAULT_ACTIVE_TASK_ID = "gembot";
+
 /** Fixed USD targets from your move-out / trading plan (post-tax cash). */
 export const FINANCIAL_GROUPS: FinancialGroup[] = [
   {
     id: "move-out",
     label: "Move out & NC living",
     items: [
+      {
+        id: "gembot",
+        label: "Gembot lifetime",
+        usd: 1_800,
+      },
       {
         id: "walk-out",
         label: "Walk out minimum",
@@ -32,11 +40,6 @@ export const FINANCIAL_GROUPS: FinancialGroup[] = [
         label: "Full NC plan",
         usd: 95_000,
         note: "15 mo @ $6k + $5k to mom (before leave)",
-      },
-      {
-        id: "gembot",
-        label: "Gembot lifetime",
-        usd: 1_800,
       },
       {
         id: "travel",
@@ -84,6 +87,13 @@ export const GRAND_TOTAL_USD =
 
 export function sumGroupItems(group: FinancialGroup): number {
   return group.items.reduce((sum, item) => sum + item.usd, 0);
+}
+
+export function findLineItem(id: string): FinancialLineItem | undefined {
+  for (const group of FINANCIAL_GROUPS) {
+    const item = group.items.find((i) => i.id === id);
+    if (item) return item;
+  }
 }
 
 export function usdToSol(usd: number, solUsdPrice: number): number {

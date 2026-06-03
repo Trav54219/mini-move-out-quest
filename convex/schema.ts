@@ -8,6 +8,7 @@ export default defineSchema({
     solEarned: v.number(),
     notes: v.string(),
     completedMilestones: v.array(v.string()),
+    activeTaskId: v.optional(v.string()),
     updatedAt: v.number(),
   })
     .index("by_user_identifier", ["userIdentifier"])
